@@ -423,6 +423,8 @@
         '<div class="chat-box">' +
           '<div class="chat-messages" id="chatMessages"></div>' +
           '<div class="chat-input-row">' +
+            '<button type="button" id="chatAttachBtn" class="attach-btn" title="사진/파일 첨부">📎</button>' +
+            '<input type="file" id="chatFileInput" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" style="display:none">' +
             '<input id="chatInput" placeholder="메시지를 입력하세요">' +
             '<button id="chatSend">보내기</button>' +
           '</div>' +
@@ -432,6 +434,10 @@
     document.getElementById('chatBack').addEventListener('click', function () { stopPolling(); backAction(); });
     document.getElementById('chatSend').addEventListener('click', sendChatMessage);
     document.getElementById('chatInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') sendChatMessage(); });
+    document.getElementById('chatAttachBtn').addEventListener('click', function () {
+      document.getElementById('chatFileInput').click();
+    });
+    document.getElementById('chatFileInput').addEventListener('change', handleFileSelected);
 
     try {
       var messages = await api('/api/consultations/' + consultationId + '/messages');
@@ -455,10 +461,65 @@
       var mine = viewerType === 'customer' ? m.sender === 'customer' : m.sender !== 'customer';
       el.className = 'msg ' + (mine ? 'mine' : 'theirs');
       var label = m.sender === 'customer' ? '고객' : (m.senderName || m.sender_name || '담당자');
-      el.innerHTML = '<span class="sender">' + esc(label) + '</span>' + esc(m.text);
+      var inner = '<span class="sender">' + esc(label) + '</span>';
+
+      var attUrl = m.attachment_url;
+      var attName = m.attachment_name;
+      var attMime = m.attachment_mime;
+      if (attUrl) {
+        if (attMime && attMime.indexOf('image/') === 0) {
+          inner += '<a href="' + esc(attUrl) + '" target="_blank" rel="noopener"><img class="chat-image" src="' + esc(attUrl) + '" alt="첨부 이미지"></a>';
+        } else {
+          inner += '<a class="chat-file" href="' + esc(attUrl) + '" target="_blank" rel="noopener">📄 ' + esc(attName || '첨부파일') + '</a>';
+        }
+      }
+      if (m.text) {
+        inner += attUrl ? ('<div class="chat-caption">' + esc(m.text) + '</div>') : esc(m.text);
+      }
+      el.innerHTML = inner;
     }
     box.appendChild(el);
     box.scrollTop = box.scrollHeight;
+  }
+
+  async function handleFileSelected(e) {
+    var file = e.target.files && e.target.files[0];
+    e.target.value = ''; // 같은 파일을 다시 선택해도 change 이벤트가 발생하도록 초기화
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB 이하만 가능해요.');
+      return;
+    }
+    var allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+    if (allowed.indexOf(file.type) === -1) {
+      alert('이미지(JPG/PNG/WEBP/GIF) 또는 PDF 파일만 첨부할 수 있어요.');
+      return;
+    }
+
+    var attachBtn = document.getElementById('chatAttachBtn');
+    attachBtn.disabled = true;
+    attachBtn.textContent = '전송 중...';
+    try {
+      var formData = new FormData();
+      formData.append('file', file);
+      var headers = {};
+      if (state.token) headers.Authorization = 'Bearer ' + state.token;
+      var res = await fetch('/api/uploads/' + state.currentConsultationId, {
+        method: 'POST',
+        headers: headers,
+        body: formData
+      });
+      var data = null;
+      try { data = await res.json(); } catch (e2) { /* 본문 없음 */ }
+      if (!res.ok) throw new Error((data && data.error) || '업로드에 실패했어요.');
+      // 실제 채팅창 표시는 서버가 보내는 실시간(socket) 메시지로 처리돼요.
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      attachBtn.disabled = false;
+      attachBtn.textContent = '📎';
+    }
   }
 
   function sendChatMessage() {
