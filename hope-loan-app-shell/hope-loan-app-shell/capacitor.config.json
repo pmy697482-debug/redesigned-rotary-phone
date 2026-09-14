@@ -1,0 +1,15 @@
+{
+  "appId": "com.hopenanumiron.app",
+  "appName": "희망나누미론",
+  "webDir": "www",
+  "server": {
+    "url": "https://YOUR-DEPLOYED-BACKEND-URL-여기에-실제-배포-주소-입력",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

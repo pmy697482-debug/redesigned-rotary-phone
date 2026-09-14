@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>희망나누미론</title>
+<style>
+  html,body{height:100%;margin:0;}
+  body{
+    background:linear-gradient(165deg,#16213E 0%,#0F1730 100%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;
+    color:#F4F2EC;
+  }
+  .box{text-align:center;padding:24px;}
+  .ring{
+    width:88px;height:88px;border-radius:50%;border:3px solid #B08D57;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+    font-family:'Noto Serif KR',serif;font-size:38px;font-weight:700;
+  }
+  h1{font-family:'Noto Serif KR',serif;font-size:20px;margin:0 0 8px;}
+  p{color:#C9CEDB;font-size:13.5px;margin:0;}
+  a{color:#B08D57;}
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="ring">희</div>
+    <h1>희망나누미론</h1>
+    <p id="statusText">불러오는 중이에요...</p>
+  </div>
+
+  <script>
+    // capacitor.config.json의 server.url 값과 동일하게 맞춰주세요.
+    var BACKEND_URL = "https://YOUR-DEPLOYED-BACKEND-URL-여기에-실제-배포-주소-입력";
+
+    if (BACKEND_URL.indexOf("YOUR-DEPLOYED-BACKEND-URL") === -1) {
+      window.location.replace(BACKEND_URL);
+    } else {
+      document.getElementById('statusText').innerHTML =
+        '앱 설정이 아직 끝나지 않았어요.<br>capacitor.config.json과 이 파일의 BACKEND_URL을<br>실제 배포 주소로 바꿔주세요.';
+    }
+  </script>
+</body>
+</html>

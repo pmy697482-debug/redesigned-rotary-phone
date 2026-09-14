@@ -1,0 +1,23 @@
+{
+  "name": "hope-loan-app-shell",
+  "version": "1.0.0",
+  "description": "희망나누미론 - Capacitor 기반 iOS/Android 앱 셸 (기존 웹앱을 감싸서 스토어에 올리기 위한 프로젝트)",
+  "scripts": {
+    "sync": "npx cap sync",
+    "add:android": "npx cap add android",
+    "add:ios": "npx cap add ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios",
+    "assets": "npx @capacitor/assets generate"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/push-notifications": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/ios": "^6.1.2"
+  }
+}
